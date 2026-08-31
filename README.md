@@ -12,6 +12,13 @@ It is a massive step up from a standard spreadsheet. With deep stats, a built-in
 ```
 Before continue install Python and pip = ```🔗 https://www.python.org/downloads/```
 
+Look & Feel
+
+<img width="1600" height="826" alt="1" src="https://github.com/user-attachments/assets/2e291ce3-65d0-48ae-a4d2-3cdb4071f052" />
+<img width="1446" height="732" alt="2" src="https://github.com/user-attachments/assets/45183992-9c26-44c4-bd02-4b56e136b7db" />
+<img width="1261" height="602" alt="3" src="https://github.com/user-attachments/assets/2b48643f-fbbf-483e-a563-2655b71a63fe" />
+
+
 ## Instruction 
 
 ``` 
