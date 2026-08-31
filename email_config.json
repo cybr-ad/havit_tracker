@@ -1,0 +1,10 @@
+{
+  "smtp_enabled": true,
+  "smtp_server": "smtp.gmail.com",
+  "smtp_port": 587,
+  "smtp_user": "your_gmail@gmail.com",
+  "smtp_password": "xxx xxx xxx xxx",
+  "from_email": "your_gmail@gmail.com",
+  "from_name": "HAVIT Tracker"
+}
+

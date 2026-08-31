@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="HAVIT Pro - Master Spreadsheet Habit Tracker with Strict Verified Authentication, Executive Professional Report, and 30-Day Matrix.">
+  <title>HAVIT Pro — Spreadsheet Habit Tracker & Executive Life Dashboard</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="theme-midnight">
+
+  <!-- ==========================================================================
+       STRICT AUTHENTICATION GATE (FULL-SCREEN SECURITY WALL)
+       Cannot access dashboard or features without valid name, verified email & 16+ pass
+       ========================================================================== -->
+  <div class="auth-gate-screen" id="authGateScreen" style="display: flex;">
+    <div class="auth-gate-card">
+      <div class="auth-gate-header">
+        <div class="gate-logo">
+          <i data-lucide="shield-check" class="gate-icon"></i>
+          <span class="gate-title">HAVIT<span class="text-cyan">PRO</span> SECURITY GATE</span>
+        </div>
+        <p class="gate-subtitle">Strict Authentication Required • Verified Access Only</p>
+      </div>
+
+      <!-- CARD 1: SIGN IN -->
+      <div id="gateSignInCard">
+        <form id="gateSignInForm" class="modal-form">
+          <div class="form-group">
+            <label for="gateSignInName">Your Name / Title</label>
+            <input type="text" id="gateSignInName" placeholder="e.g. Champion, Alex" value="Champion">
+          </div>
+
+          <div class="form-group">
+            <label for="gateSignInEmail">Verified Email Address *</label>
+            <input type="email" id="gateSignInEmail" required placeholder="e.g. champion@havitpro.com" value="champion@havitpro.com">
+          </div>
+
+          <div class="form-group">
+            <label for="gateSignInPassword">Password (16+ Characters) *</label>
+            <input type="password" id="gateSignInPassword" required minlength="16" placeholder="Enter your 16+ character password" value="MasterSecretKey2026!#StrongPass">
+          </div>
+
+          <div class="modal-footer" style="justify-content: space-between; margin-top: 18px;">
+            <a href="#" id="gateSwitchToSignUp" style="font-size: 0.84rem; color: var(--cyan); text-decoration: none;">New user? Create Verified Account</a>
+            <button type="submit" class="btn-sheet-primary"><i data-lucide="lock-open"></i> Unlock Dashboard</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- CARD 2: SIGN UP -->
+      <div id="gateSignUpCard" style="display: none;">
+        <form id="gateSignUpForm" class="modal-form">
+          <div class="form-group">
+            <label for="gateSignUpName">Full Name *</label>
+            <input type="text" id="gateSignUpName" required placeholder="e.g. Alex Henderson">
+          </div>
+
+          <div class="form-group">
+            <label for="gateSignUpEmail">Valid Email Address (For Real Email OTP) *</label>
+            <input type="email" id="gateSignUpEmail" required placeholder="e.g. yourname@gmail.com">
+          </div>
+
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label for="gateSignUpPassword">Password (Minimum 16 Characters) *</label>
+              <span id="gatePassCounter" class="font-mono" style="font-size: 0.74rem; color: var(--amber);">0 / 16 chars</span>
+            </div>
+            <input type="password" id="gateSignUpPassword" required minlength="16" placeholder="Enter at least 16 secure characters">
+            <div style="height: 4px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top: 4px;">
+              <div id="gatePassBar" style="height: 100%; width: 0%; transition: width 0.2s, background 0.2s;"></div>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="justify-content: space-between; margin-top: 18px;">
+            <a href="#" id="gateSwitchToSignIn" style="font-size: 0.84rem; color: var(--cyan); text-decoration: none;">Already verified? Sign In</a>
+            <button type="submit" class="btn-sheet-primary" id="gateSendOtpSubmitBtn">
+              <i data-lucide="send"></i> Send Verification Code
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- CARD 3: EMAIL 6-DIGIT VERIFICATION STEP (STRICT INBOX DELIVERY ONLY) -->
+      <div id="gateVerifyCard" style="display: none;">
+        <div style="background: rgba(0, 240, 255, 0.06); border: 1px solid rgba(0,240,255,0.25); padding: 16px 18px; border-radius: var(--radius-md); margin-bottom: 16px;">
+          <div style="font-weight: 700; font-size: 0.92rem; color: var(--cyan); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="mail-check" style="width: 18px; height: 18px;"></i> Verification Code Sent to Email!
+          </div>
+          <div style="font-size: 0.84rem; color: var(--text-main); line-height: 1.45; margin-top: 6px;">
+            A 6-digit security code has been dispatched to your email inbox: <br>
+            <strong id="gateVerifyEmailTarget" style="color: #FFF; font-size: 0.95rem;"></strong>
+          </div>
+          <div style="margin-top: 8px; font-size: 0.76rem; color: var(--text-muted);">
+            Please open your email inbox (or spam folder) and enter the 6-digit code below.
+          </div>
+        </div>
+
+        <form id="gateVerifyForm" class="modal-form">
+          <div class="form-group">
+            <label for="gateVerifyCodeInput">Enter 6-Digit Code Received in Mail *</label>
+            <input type="text" id="gateVerifyCodeInput" required maxlength="6" class="font-mono" placeholder="• • • • • •" style="font-size: 1.4rem; letter-spacing: 8px; text-align: center; font-weight: 800;">
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; margin-bottom: 14px;">
+            <button type="button" id="gateResendOtpBtn" class="btn-sheet-sm" style="color: var(--cyan);">
+              <i data-lucide="rotate-cw"></i> <span id="gateResendText">Resend Code to Mail</span>
+            </button>
+            <span id="gateResendCountdown" class="font-mono" style="font-size: 0.76rem; color: var(--text-dim);"></span>
+          </div>
+
+          <div class="modal-footer" style="justify-content: space-between;">
+            <button type="button" class="btn-sheet-outline" id="gateCancelVerifyBtn">Back</button>
+            <button type="submit" class="btn-sheet-primary"><i data-lucide="check-circle-2"></i> Verify & Unlock</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="gate-footer-note">
+        🔒 Encrypted offline-first storage • 10-Minute Active Session Limit • 16+ Character Password Policy
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MAIN APPLICATION CONTAINER (LOCKED BEHIND AUTH GATE)
+       ========================================================================== -->
+  <div class="sheet-app-container" id="mainAppContainer" style="display: none;">
+    
+    <!-- Top Master Control Bar -->
+    <header class="sheet-topbar">
+      <div class="topbar-left">
+        <div class="brand-badge">
+          <i data-lucide="table-2" class="brand-icon"></i>
+          <span class="brand-title">HAVIT<span class="brand-accent">PRO</span></span>
+        </div>
+
+        <!-- User Profile Greeting ("Name's Activity") -->
+        <div class="user-activity-pill" id="userProfileTrigger" title="Click to view verified profile settings">
+          <span class="user-avatar-icon">👤</span>
+          <div>
+            <span class="user-activity-text"><span id="userActivityName">Champion</span>'s Activity</span>
+            <div class="user-activity-sub" id="userActivityLocation">Detecting GPS/IP Location...</div>
+          </div>
+        </div>
+
+        <!-- 10-Minute Live Session Expiry Countdown Pill -->
+        <div class="session-timer-pill font-mono" id="sessionTimerPill" title="Your login session automatically expires after 10 minutes">
+          <i data-lucide="hourglass" class="session-timer-icon"></i>
+          <span>Session: <strong id="sessionTimerDisplay">10:00</strong></span>
+        </div>
+
+        <!-- Live Clock & GPS/IP Weather Widget -->
+        <div class="meta-widget">
+          <div class="widget-item">
+            <i data-lucide="clock" class="widget-icon text-cyan"></i>
+            <span id="liveClockDisplay" class="font-mono">00:00:00</span>
+          </div>
+          <div class="widget-divider"></div>
+          <div class="widget-item">
+            <i data-lucide="calendar" class="widget-icon text-emerald"></i>
+            <span id="liveDateDisplay">Today</span>
+          </div>
+          <div class="widget-divider"></div>
+          <div class="widget-item" id="weatherWidget" title="Click to refresh live GPS/IP weather">
+            <span class="weather-emoji" id="weatherIcon">☀️</span>
+            <span id="weatherText">Detecting Weather...</span>
+            <i data-lucide="refresh-cw" class="weather-refresh-icon"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="topbar-center">
+        <!-- Month Navigator -->
+        <div class="month-stepper">
+          <button class="btn-stepper" id="sheetPrevMonthBtn" title="Previous Month">
+            <i data-lucide="chevron-left"></i>
+          </button>
+          <div class="current-month-label" id="sheetMonthLabel">
+            <i data-lucide="calendar-days"></i>
+            <span id="sheetMonthName">August 2026</span>
+          </div>
+          <button class="btn-stepper" id="sheetNextMonthBtn" title="Next Month">
+            <i data-lucide="chevron-right"></i>
+          </button>
+          <button class="btn-stepper-today" id="sheetCurrentMonthBtn">Current Month</button>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <!-- View Mode Switcher -->
+        <div class="view-mode-tabs">
+          <button class="view-tab-btn active" data-view="sheet" id="viewTabSheet">
+            <i data-lucide="grid"></i> Matrix
+          </button>
+          <button class="view-tab-btn" data-view="report" id="viewTabReport">
+            <i data-lucide="file-text"></i> Executive Report
+          </button>
+          <button class="view-tab-btn" data-view="yearly" id="viewTabYearly">
+            <i data-lucide="flame"></i> 365 Heatmap
+          </button>
+          <button class="view-tab-btn" data-view="achievements" id="viewTabAchievements">
+            <i data-lucide="trophy"></i> Ranks
+          </button>
+        </div>
+
+        <!-- Quick Actions & Settings -->
+        <div class="action-buttons-group">
+          <button class="btn-sheet-primary" id="openNewHabitModalBtn">
+            <i data-lucide="plus"></i> Add Habit
+          </button>
+          <button class="btn-sheet-outline" id="loadDemoDataBtn" title="Fill 60 days of realistic history">
+            <i data-lucide="sparkles"></i> Demo Data
+          </button>
+          <button class="btn-sheet-outline" id="exportCsvBtn" title="Export to Excel / CSV">
+            <i data-lucide="download"></i> Export
+          </button>
+          <button class="btn-sheet-icon" id="soundToggleBtn" title="Sound FX Toggle">
+            <i data-lucide="volume-2" id="soundIcon"></i>
+          </button>
+          <button class="btn-sheet-icon settings-btn" id="openSettingsModalBtn" title="Open Master Settings (Themes, Profile, Habits, Alarms)">
+            <i data-lucide="settings"></i>
+          </button>
+          <button class="btn-sheet-icon" id="toggleDrawerBtn" title="Open Today's Task & Notes Drawer">
+            <i data-lucide="sidebar"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- LIVE ALARM ALERT BANNER -->
+    <div class="alarm-alert-banner" id="alarmAlertBanner">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <i data-lucide="bell-ring"></i>
+        <span>⏰ <strong>ALARM TRIGGERED:</strong> <span id="alarmAlertText">Time for Wake up 6 AM!</span></span>
+      </div>
+      <button class="btn-dismiss-alarm" id="dismissAlarmBtn">Dismiss Alarm</button>
+    </div>
+
+    <!-- MAIN VIEW 1: SPREADSHEET MATRIX (Default) -->
+    <main class="sheet-main-view" id="mainSpreadsheetView">
+      
+      <!-- TOP EXECUTIVE KPI & GAUGES SECTION -->
+      <section class="executive-kpi-banner">
+        
+        <!-- Monthly Dashboard Box (Left) -->
+        <div class="kpi-banner-card card-monthly">
+          <div class="kpi-card-title-row">
+            <span class="kpi-banner-title">Monthly Dashboard</span>
+            <span class="kpi-badge-pill" id="monthlyDaysCount">31 Days</span>
+          </div>
+          <div class="kpi-stat-rows">
+            <div class="kpi-stat-row">
+              <span class="stat-name">Overall 30-day completion %</span>
+              <span class="stat-val font-mono text-cyan" id="kpiMonthlyPercent">0.0%</span>
+            </div>
+            <div class="kpi-stat-row">
+              <span class="stat-name">Total habits completed</span>
+              <span class="stat-val font-mono text-emerald" id="kpiMonthlyTotalTicks">0 / 248</span>
+            </div>
+            <div class="kpi-stat-row">
+              <span class="stat-name">Longest habit streak</span>
+              <span class="stat-val font-mono text-purple" id="kpiLongestStreak">0 Days</span>
+            </div>
+            <div class="kpi-stat-row">
+              <span class="stat-name">Most productive day</span>
+              <span class="stat-val font-mono text-amber" id="kpiBestDay">Monday (0%)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly Dashboard Box (Middle) -->
+        <div class="kpi-banner-card card-weekly">
+          <div class="kpi-card-title-row">
+            <span class="kpi-banner-title">Weekly Dashboard</span>
+            <span class="kpi-badge-pill">Current 7-Day</span>
+          </div>
+          <div class="kpi-stat-rows">
+            <div class="kpi-stat-row">
+              <span class="stat-name">Weekly completion %</span>
+              <span class="stat-val font-mono text-cyan" id="kpiWeeklyPercent">0.0%</span>
+            </div>
+            <div class="kpi-stat-row">
+              <span class="stat-name">Total habits completed</span>
+              <span class="stat-val font-mono text-emerald" id="kpiWeeklyTotalTicks">0 / 56</span>
+            </div>
+            <div class="kpi-stat-row">
+              <span class="stat-name">Clean Mind (No Porn) Streak</span>
+              <span class="stat-val font-mono text-pink" id="kpiCleanStreak">0 Days</span>
+            </div>
+            <div class="kpi-stat-row">
+              <span class="stat-name">Best / Focus habit</span>
+              <span class="stat-val font-mono text-amber" id="kpiBestHabit">Water / Meditation</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Interactive Circular Donut Gauges (Right) -->
+        <div class="donut-gauges-container">
+          
+          <div class="donut-card">
+            <div class="donut-chart-box">
+              <canvas id="donutTodayChart" width="80" height="80"></canvas>
+              <div class="donut-center-text">
+                <span class="donut-val font-mono" id="donutTodayVal">0%</span>
+              </div>
+            </div>
+            <span class="donut-label">Today's Target</span>
+          </div>
+
+          <div class="donut-card">
+            <div class="donut-chart-box">
+              <canvas id="donutWeeklyChart" width="80" height="80"></canvas>
+              <div class="donut-center-text">
+                <span class="donut-val font-mono" id="donutWeeklyVal">0%</span>
+              </div>
+            </div>
+            <span class="donut-label">Week Goal</span>
+          </div>
+
+          <div class="donut-card">
+            <div class="donut-chart-box">
+              <canvas id="donutMonthlyChart" width="80" height="80"></canvas>
+              <div class="donut-center-text">
+                <span class="donut-val font-mono" id="donutMonthlyVal">0%</span>
+              </div>
+            </div>
+            <span class="donut-label">Month Goal</span>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- MASTER SPREADSHEET MATRIX -->
+      <section class="spreadsheet-container-card">
+        
+        <div class="spreadsheet-toolbar">
+          <div class="sheet-legend">
+            <span class="legend-chip"><span class="chip-color chip-done"></span> Completed (✓)</span>
+            <span class="legend-chip"><span class="chip-color chip-partial"></span> In Progress</span>
+            <span class="legend-chip"><span class="chip-color chip-today"></span> Today's Column</span>
+            <span class="legend-chip"><span class="chip-color chip-empty"></span> Not Logged</span>
+          </div>
+          <div class="sheet-quick-actions">
+            <button class="btn-sheet-sm" id="sheetCheckTodayAllBtn"><i data-lucide="check-check"></i> Complete Today</button>
+            <button class="btn-sheet-sm" id="sheetResetMonthBtn"><i data-lucide="rotate-ccw"></i> Reset Month</button>
+          </div>
+        </div>
+
+        <div class="spreadsheet-scroll-wrapper" id="sheetScrollWrapper">
+          <table class="master-sheet-table" id="masterSpreadsheetTable">
+            <thead>
+              <tr class="header-row-day-number" id="sheetHeaderDaysRow"></tr>
+              <tr class="header-row-weekday" id="sheetHeaderWeekdaysRow"></tr>
+            </thead>
+            <tbody id="sheetTableBody"></tbody>
+            <tfoot>
+              <tr class="footer-row-total" id="sheetFooterTotalRow"></tr>
+              <tr class="footer-row-percent" id="sheetFooterPercentRow"></tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <!-- BOTTOM CHARTS ROW -->
+      <section class="sheet-charts-grid">
+        
+        <div class="sheet-chart-card">
+          <div class="chart-card-header">
+            <div class="chart-title-box">
+              <i data-lucide="bar-chart-2" class="text-emerald"></i>
+              <h3 class="chart-heading">Weekday Habits Completed (Mon - Sun Distribution)</h3>
+            </div>
+            <span class="chart-pill">7-Day Consistency</span>
+          </div>
+          <div class="chart-canvas-wrapper">
+            <canvas id="sheetWeeklyBarChart"></canvas>
+          </div>
+        </div>
+
+        <div class="sheet-chart-card">
+          <div class="chart-card-header">
+            <div class="chart-title-box">
+              <i data-lucide="activity" class="text-amber"></i>
+              <h3 class="chart-heading">30-Day Daily Completion Progression</h3>
+            </div>
+            <span class="chart-pill">Day 1 to 31</span>
+          </div>
+          <div class="chart-canvas-wrapper">
+            <canvas id="sheetMonthlyBarChart"></canvas>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- MAIN VIEW 2: EXECUTIVE PROFESSIONAL REPORT & ACTIVITY CENTER -->
+    <section class="sheet-sub-view" id="professionalReportView" style="display: none;">
+      
+      <!-- Report Header & Actions -->
+      <div class="report-top-actions">
+        <div>
+          <h2 class="subview-title" style="display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="award" class="text-cyan"></i>
+            Executive Performance & Activity Report
+          </h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">
+            Audited Habit Adherence, Volume Metrics & Timestamped Activity Timeline.
+          </p>
+        </div>
+        <button class="btn-sheet-primary" id="printProfessionalReportBtn">
+          <i data-lucide="printer"></i> Print / Save PDF
+        </button>
+      </div>
+
+      <!-- Executive Certificate Hero Card -->
+      <div class="report-executive-card">
+        <div class="report-cert-left">
+          <div class="report-seal-badge">👑</div>
+          <div>
+            <div class="report-cert-title">OFFICIAL DISCIPLINE AUDIT REPORT</div>
+            <div class="report-cert-sub">
+              <strong>User:</strong> <span id="reportHeaderUser">Champion</span> • 
+              <strong>Period:</strong> <span id="reportHeaderMonth">August 2026</span> • 
+              <strong>Location:</strong> <span id="reportHeaderLocation">Local</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-grade-box">
+          <div class="report-grade-circle font-mono" id="reportDisciplineGrade">A+</div>
+          <div>
+            <div class="report-score-val font-mono" id="reportDisciplineScore">0% Overall</div>
+            <div class="report-score-label" id="reportGradeDesc">Legendary Master • GOLD ELITE</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Volume & Consistency Metrics Grid -->
+      <div class="report-stats-grid">
+        <div class="report-stat-card">
+          <div class="report-stat-icon text-cyan">💧</div>
+          <div class="report-stat-val font-mono" id="reportWaterTotal">0 Liters</div>
+          <div class="report-stat-label">Hydration Volume Logged</div>
+        </div>
+        <div class="report-stat-card">
+          <div class="report-stat-icon text-emerald">💼</div>
+          <div class="report-stat-val font-mono" id="reportWorkTotal">0 Hours</div>
+          <div class="report-stat-label">Deep Work & Study Executed</div>
+        </div>
+        <div class="report-stat-card">
+          <div class="report-stat-icon text-pink">🛡️</div>
+          <div class="report-stat-val font-mono" id="reportCleanStreak">0 Days Clean</div>
+          <div class="report-stat-label">Clean Mind (No Porn) Streak</div>
+        </div>
+        <div class="report-stat-card">
+          <div class="report-stat-icon text-purple">🔥</div>
+          <div class="report-stat-val font-mono" id="reportActiveStreak">0 Days</div>
+          <div class="report-stat-label">Consecutive Consistency Streak</div>
+        </div>
+      </div>
+
+      <!-- Detailed Habit Matrix Breakdown Table -->
+      <div class="report-table-card mt-4">
+        <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="table" class="text-cyan"></i>
+          Habit Adherence & Consistency Breakdown
+        </h3>
+        <div style="overflow-x: auto;">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Serial</th>
+                <th>Habit Name</th>
+                <th>Category</th>
+                <th>Daily Target</th>
+                <th>Completed Days</th>
+                <th>Adherence Score</th>
+                <th>Current Streak</th>
+              </tr>
+            </thead>
+            <tbody id="reportHabitsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Real-Time Activity Feed Timeline -->
+      <div class="report-table-card mt-4">
+        <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="history" class="text-emerald"></i>
+          Recent Activity Timeline & Audit Log
+        </h3>
+        <div class="activity-feed-container" id="activityFeedContainer"></div>
+      </div>
+
+    </section>
+
+    <!-- MAIN VIEW 3: 365-DAY YEARLY HEATMAP VIEW -->
+    <section class="sheet-sub-view" id="yearlyHeatmapView" style="display: none;">
+      <div class="subview-header">
+        <h2 class="subview-title">365-Day Discipline Heatmap & Yearly Overview</h2>
+        <span class="subview-year" id="yearlyViewYearText">2026</span>
+      </div>
+      
+      <div class="yearly-heatmap-wrapper">
+        <div class="heatmap-months-labels" id="yearlyMonthsRow"></div>
+        <div class="yearly-heatmap-grid" id="yearlyGridMaster"></div>
+        <div class="heatmap-tooltip" id="sheetHeatmapTooltip"></div>
+      </div>
+
+      <div class="yearly-charts-row mt-4">
+        <div class="sheet-chart-card">
+          <div class="chart-card-header">
+            <h3 class="chart-heading">12-Month Performance Trend</h3>
+          </div>
+          <div class="chart-canvas-wrapper">
+            <canvas id="yearlyTrendChartCanvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN VIEW 4: ACHIEVEMENTS & GAMIFICATION -->
+    <section class="sheet-sub-view" id="achievementsView" style="display: none;">
+      <div class="subview-header">
+        <h2 class="subview-title">Leveling, Streaks & Mastery Badges</h2>
+      </div>
+
+      <div class="rank-hero-banner">
+        <div class="rank-avatar-large" id="rankHeroIcon">👑</div>
+        <div class="rank-hero-info">
+          <div class="rank-badge-tag" id="rankHeroTag">TIER: ELITE</div>
+          <h2 class="rank-hero-name" id="rankHeroName">Grandmaster</h2>
+          <p class="rank-hero-desc" id="rankHeroDesc">Supreme consistency. You command your habits daily.</p>
+          <div class="rank-progress-wrap">
+            <div class="rank-xp-labels">
+              <span id="rankCurrentXpText">0 XP</span>
+              <span id="rankNextLevelText">Next: Level 2</span>
+            </div>
+            <div class="rank-xp-track">
+              <div class="rank-xp-fill" id="rankXpFill" style="width: 15%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="badges-grid" id="badgesGridContainer"></div>
+    </section>
+
+    <!-- SIDE DRAWER: TODAY'S FOCUS & NOTES -->
+    <aside class="side-drawer" id="sideDrawer">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <i data-lucide="check-square" class="text-cyan"></i>
+          <span>Today's Task & Habit Focus</span>
+        </div>
+        <button class="drawer-close-btn" id="closeDrawerBtn"><i data-lucide="x"></i></button>
+      </div>
+
+      <div class="drawer-content">
+        <div class="drawer-progress-box">
+          <div class="drawer-ring-val" id="drawerTodayPercent">0%</div>
+          <div class="drawer-ring-sub" id="drawerTodayHabits">0 of 8 completed today</div>
+        </div>
+
+        <div class="drawer-section-title">Today's Quick Checklist</div>
+        <div class="drawer-checklist" id="drawerHabitList"></div>
+
+        <div class="drawer-section-title mt-4">Focus & Pomodoro Timer</div>
+        <div class="drawer-timer-box">
+          <div class="drawer-timer-clock" id="drawerTimerClock">25:00</div>
+          <div class="drawer-timer-name" id="drawerTimerName">Deep Work / Study</div>
+          <div class="drawer-timer-actions">
+            <button class="btn-sheet-sm" id="drawerTimerStartBtn"><i data-lucide="play" id="drawerTimerIcon"></i> Start</button>
+            <button class="btn-sheet-sm" id="drawerTimerResetBtn"><i data-lucide="rotate-ccw"></i> Reset</button>
+            <button class="btn-sheet-sm" id="drawerTimerLogBtn"><i data-lucide="check"></i> Log +0.5h</button>
+          </div>
+        </div>
+
+        <div class="drawer-section-title mt-4">Daily Log & Reflection</div>
+        <textarea id="drawerNotesInput" class="drawer-notes-area" placeholder="Write any notes, wins, or thoughts for today..."></textarea>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- MASTER SETTINGS MODAL (5-TAB MASTER CONFIGURATION) -->
+  <div class="modal-overlay" id="settingsModalOverlay">
+    <div class="modal-card settings-modal-dialog">
+      <div class="settings-modal-layout">
+        
+        <!-- Settings Sidebar Navigation -->
+        <div class="settings-sidebar-nav">
+          <div style="font-weight: 800; font-size: 0.95rem; color: #FFF; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="settings" class="text-cyan"></i>
+            <span>Settings</span>
+          </div>
+          <button class="settings-nav-btn active" data-tab="profile">
+            <i data-lucide="user"></i> Profile & City
+          </button>
+          <button class="settings-nav-btn" data-tab="themes">
+            <i data-lucide="palette"></i> Themes
+          </button>
+          <button class="settings-nav-btn" data-tab="habits">
+            <i data-lucide="list-plus"></i> Habits Manager
+          </button>
+          <button class="settings-nav-btn" data-tab="alarms">
+            <i data-lucide="bell"></i> Alarms & Sound
+          </button>
+          <button class="settings-nav-btn" data-tab="data">
+            <i data-lucide="database"></i> Data & Backup
+          </button>
+        </div>
+
+        <!-- Settings Content Panes -->
+        <div class="settings-tab-content">
+          
+          <!-- PANE 1: PROFILE & LOCATION -->
+          <div class="settings-tab-pane active" id="paneProfile">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <div>
+                <h3 class="settings-pane-title">User Profile & Geolocation</h3>
+                <p class="settings-pane-sub" style="margin-bottom: 0;">Verified account details & weather location.</p>
+              </div>
+              <button class="btn-sheet-sm" id="signOutBtn" style="color: var(--rose);"><i data-lucide="log-out"></i> Sign Out & Lock</button>
+            </div>
+            
+            <form id="settingsProfileForm">
+              <div class="form-group">
+                <label for="profileUserName">Your Name / Title *</label>
+                <input type="text" id="profileUserName" value="Champion" placeholder="e.g. Alex, Zahid, Commander">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label for="profileUserEmail">Registered Email Address</label>
+                  <span class="habit-sheet-badge" style="color: var(--emerald);">✓ Verified</span>
+                </div>
+                <input type="email" id="profileUserEmail" value="champion@havitpro.com" readonly style="opacity: 0.85;">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label for="profileUserLocation">Location & City (Manual Entry or GPS)</label>
+                  <button type="button" class="btn-sheet-sm" id="settingsUseGpsBtn" style="color: var(--cyan); border-color: rgba(0,240,255,0.4);">
+                    <i data-lucide="navigation"></i> Use Live GPS
+                  </button>
+                </div>
+                <input type="text" id="profileUserLocation" value="New York, USA" placeholder="e.g. Tokyo, London, Paris, Dhaka, Dubai">
+              </div>
+
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="profileWeatherTemp">Weather Display Temp</label>
+                  <input type="text" id="profileWeatherTemp" value="28°C" placeholder="e.g. 25°C, 75°F">
+                </div>
+                <div class="form-group flex-1">
+                  <label for="profileWeatherCond">Condition</label>
+                  <input type="text" id="profileWeatherCond" value="Sunny" placeholder="e.g. Sunny, Clear, High Focus">
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="submit" class="btn-sheet-primary">Save Profile & Location</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- PANE 2: THEMES -->
+          <div class="settings-tab-pane" id="paneThemes">
+            <h3 class="settings-pane-title">Visual Themes & Styles</h3>
+            <p class="settings-pane-sub">Choose your custom interface aesthetic.</p>
+
+            <div class="theme-options-grid">
+              <div class="theme-card" data-theme="pitch-black">
+                <div class="theme-preview-box" style="background: #000; border-color: #333; color: #00F0FF;">🖤</div>
+                <div>
+                  <div class="theme-info-title">Pitch Black (AMOLED)</div>
+                  <div class="theme-info-desc">Pure true black with neon glow</div>
+                </div>
+              </div>
+
+              <div class="theme-card active" data-theme="midnight">
+                <div class="theme-preview-box" style="background: #0E1424; color: #00F0FF;">🌌</div>
+                <div>
+                  <div class="theme-info-title">Midnight Luxury</div>
+                  <div class="theme-info-desc">Deep cyber dark navy glass</div>
+                </div>
+              </div>
+
+              <div class="theme-card" data-theme="light">
+                <div class="theme-preview-box" style="background: #FFFFFF; color: #0284C7; border: 1px solid #CBD5E1;">⚪</div>
+                <div>
+                  <div class="theme-info-title">Titanium White</div>
+                  <div class="theme-info-desc">Clean, crisp light luxury</div>
+                </div>
+              </div>
+
+              <div class="theme-card" data-theme="slate">
+                <div class="theme-preview-box" style="background: #202430; color: #ECEFF4;">🌫️</div>
+                <div>
+                  <div class="theme-info-title">Slate Graphite</div>
+                  <div class="theme-info-desc">Apple/Notion minimalist dark</div>
+                </div>
+              </div>
+
+              <div class="theme-card" data-theme="matrix">
+                <div class="theme-preview-box" style="background: #040E08; color: #00FF66; border-color: #00FF66;">⚡</div>
+                <div>
+                  <div class="theme-info-title">Cyber Matrix</div>
+                  <div class="theme-info-desc">Terminal emerald green</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANE 3: HABITS MANAGER (ORGANIZED SERIAL ORDER) -->
+          <div class="settings-tab-pane" id="paneHabits">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <div>
+                <h3 class="settings-pane-title">Organize Habits & Serial Order</h3>
+                <p class="settings-pane-sub" style="margin-bottom: 0;">Use ▲ and ▼ to re-order habit serial rows in your spreadsheet.</p>
+              </div>
+              <button class="btn-sheet-primary" id="settingsAddHabitBtn"><i data-lucide="plus"></i> New Habit</button>
+            </div>
+
+            <div class="settings-habit-list" id="settingsHabitListContainer"></div>
+          </div>
+
+          <!-- PANE 4: ALARMS & SOUND -->
+          <div class="settings-tab-pane" id="paneAlarms">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <div>
+                <h3 class="settings-pane-title">Daily Alarms & Reminders</h3>
+                <p class="settings-pane-sub" style="margin-bottom: 0;">Set audio alarms for your morning routine and habits.</p>
+              </div>
+              <button class="btn-sheet-sm" id="testAlarmSoundBtn"><i data-lucide="volume-2"></i> Test Alarm Tone</button>
+            </div>
+
+            <div class="settings-alarm-list" id="settingsAlarmListContainer"></div>
+
+            <form id="newAlarmForm" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-sheet); padding: 12px; border-radius: var(--radius-md);">
+              <h4 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 8px;">Add New Alarm</h4>
+              <div class="form-row">
+                <input type="text" id="newAlarmName" placeholder="Alarm name (e.g. Drink Water)" required class="flex-1">
+                <input type="time" id="newAlarmTime" required style="width: 120px;">
+                <button type="submit" class="btn-sheet-primary">Set Alarm</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- PANE 5: DATA & BACKUP -->
+          <div class="settings-tab-pane" id="paneData">
+            <h3 class="settings-pane-title">Data Backup & Demo Generator</h3>
+            <p class="settings-pane-sub">Manage your offline storage and exports.</p>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <button class="btn-sheet-outline" id="settingsExportJsonBtn"><i data-lucide="download"></i> Download Full JSON Backup</button>
+              <button class="btn-sheet-outline" id="settingsExportCsvBtn"><i data-lucide="file-spreadsheet"></i> Export Spreadsheet CSV</button>
+              <label class="btn-sheet-outline" style="justify-content: center; cursor: pointer;">
+                <i data-lucide="upload"></i> Restore from JSON Backup
+                <input type="file" id="settingsImportJsonInput" accept=".json" style="display: none;">
+              </label>
+              <button class="btn-sheet-outline" id="settingsLoadDemoBtn" style="border-color: var(--purple); color: var(--purple);"><i data-lucide="sparkles"></i> Load 60-Day Pro Demo Data</button>
+              <button class="btn-sheet-outline" id="settingsFactoryResetBtn" style="border-color: var(--rose); color: var(--rose);"><i data-lucide="trash-2"></i> Factory Reset All Data</button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+      <div style="padding: 10px 20px; background: var(--bg-panel); border-top: 1px solid var(--border-sheet); display: flex; justify-content: flex-end;">
+        <button class="btn-sheet-outline" id="closeSettingsModalBtn">Close Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP MODAL: NUMERIC HABIT LOGGING -->
+  <div class="sheet-popup-overlay" id="numericPopoverOverlay">
+    <div class="numeric-popover-card" id="numericPopoverCard">
+      <div class="popover-header">
+        <span class="popover-title" id="popoverHabitName">Log Value</span>
+        <button class="popover-close-btn" id="closePopoverBtn"><i data-lucide="x"></i></button>
+      </div>
+      <div class="popover-body">
+        <div class="popover-val-display">
+          <span id="popoverCurrentVal">0.0</span> <span id="popoverUnit">L</span>
+        </div>
+        <div class="popover-steppers">
+          <button class="btn-popover-step" id="popoverDecBtn">-0.5</button>
+          <button class="btn-popover-step" id="popoverIncBtn">+0.5</button>
+          <button class="btn-popover-step" id="popoverIncBigBtn">+1.0</button>
+          <button class="btn-popover-max" id="popoverMaxBtn">Full Target</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT HABIT -->
+  <div class="modal-overlay" id="habitModalOverlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="habitModalTitle">Add New Habit</h3>
+        <button class="modal-close-btn" id="closeHabitModalBtn"><i data-lucide="x"></i></button>
+      </div>
+      <form id="habitForm" class="modal-form">
+        <input type="hidden" id="habitFormId">
+        
+        <div class="form-group">
+          <label for="habitFormName">Habit / Task Name *</label>
+          <input type="text" id="habitFormName" required placeholder="e.g. Cold Shower, Read 20 Pages, Gym Workout">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="habitFormCategory">Category</label>
+            <select id="habitFormCategory">
+              <option value="morning">🌅 Morning Routine</option>
+              <option value="health">🏋️ Health & Hydration</option>
+              <option value="mind">🧘 Mind & Discipline</option>
+              <option value="productivity">💼 Work & Study</option>
+            </select>
+          </div>
+          <div class="form-group flex-1">
+            <label for="habitFormType">Tracking Type</label>
+            <select id="habitFormType">
+              <option value="boolean">Checkbox (Done / Not Done)</option>
+              <option value="numeric">Numeric Target (Liters, Hours, etc.)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row" id="numericOptionsRow" style="display: none;">
+          <div class="form-group flex-1">
+            <label for="habitFormTarget">Target Value</label>
+            <input type="number" id="habitFormTarget" min="1" step="0.5" value="5">
+          </div>
+          <div class="form-group flex-1">
+            <label for="habitFormUnit">Unit</label>
+            <input type="text" id="habitFormUnit" placeholder="e.g. L, hr, mins, pages">
+          </div>
+          <div class="form-group flex-1">
+            <label for="habitFormStep">Step Increment</label>
+            <input type="number" id="habitFormStep" min="0.1" step="0.1" value="0.5">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="habitFormIcon">Icon (Emoji)</label>
+            <input type="text" id="habitFormIcon" placeholder="e.g. ⚡, 📖, 💧" value="⚡">
+          </div>
+          <div class="form-group flex-1">
+            <label>Row Color Stripe</label>
+            <div class="color-picker-palette" id="colorPalette">
+              <span class="color-dot active" data-color="#00F0FF" style="background: #00F0FF;"></span>
+              <span class="color-dot" data-color="#10B981" style="background: #10B981;"></span>
+              <span class="color-dot" data-color="#8B5CF6" style="background: #8B5CF6;"></span>
+              <span class="color-dot" data-color="#EC4899" style="background: #EC4899;"></span>
+              <span class="color-dot" data-color="#F59E0B" style="background: #F59E0B;"></span>
+              <span class="color-dot" data-color="#EF4444" style="background: #EF4444;"></span>
+              <span class="color-dot" data-color="#6366F1" style="background: #6366F1;"></span>
+            </div>
+            <input type="hidden" id="habitFormColorInput" value="#00F0FF">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="habitFormDescription">Why does this habit matter?</label>
+          <input type="text" id="habitFormDescription" placeholder="e.g. Unshakable discipline and physical power">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-sheet-outline" id="cancelHabitModalBtn">Cancel</button>
+          <button type="submit" class="btn-sheet-primary" id="saveHabitBtn">Save Habit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="js/sound.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
